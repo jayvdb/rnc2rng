@@ -70,6 +70,12 @@ NODE_TYPES = [
     'SEQ', 'SOME', 'TEXT',
 ]
 
+for _name in NODE_TYPES:
+    assert _name not in globals()
+    globals()[_name] = _name
+
+del _name
+
 @pg.production('start : preamble top-level-body')
 def start(s, p):
     return Node('ROOT', None, p[0] + p[1])
@@ -135,11 +141,11 @@ def component_start(s, p):
     return Node('DEFINE', 'start', [p[1]])
 
 @pg.production('definition : EQUAL pattern')
-def definition(s, p):
+def definition_equal(s, p):
     return Node('ASSIGN', p[0].value, p[1])
 
 @pg.production('definition : COMBINE pattern')
-def definition(s, p):
+def definition_combine(s, p):
     return Node('ASSIGN', p[0].value, p[1])
 
 @pg.production('component : DIV LBRACE grammar RBRACE')
@@ -441,7 +447,7 @@ def id_kw_elem(s, p):
     return Node('NAME', p[0].value)
 
 @pg.production('id-or-kw : ATTRIBUTE')
-def id_kw_elem(s, p):
+def id_kw_attr(s, p):
     return Node('NAME', p[0].value)
 
 @pg.production('id-or-kw : EMPTY')
@@ -473,7 +479,7 @@ def id_kw_div(s, p):
     return Node('NAME', p[0].value)
 
 @pg.production('id-or-kw : INCLUDE')
-def id_kw_div(s, p):
+def id_kw_inc(s, p):
     return Node('NAME', p[0].value)
 
 class ParseError(Exception):
@@ -511,6 +517,9 @@ class State(object):
         self.lines = src.splitlines()
 
 if sys.version_info[0] < 3:
+    if __debug__ and sys.version_info[0] >= 3:
+        # unreachable code; used to bypass pyflakes error
+        unicode = str
     str_types = str, bytes, unicode
 else:
     str_types = str, bytes

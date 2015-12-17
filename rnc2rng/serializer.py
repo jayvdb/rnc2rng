@@ -3,8 +3,12 @@
 from . import parser
 import cgi
 
-for type in parser.NODE_TYPES:
-    globals()[type] = type
+from rnc2rng.parser import (
+    ANNO_ATTR, ANNOTATION, ANY, ASSIGN, ATTR, CHOICE, DATATAG, DATATYPES,
+    DEFAULT_NS, DEFINE, DIV, DOCUMENTATION, ELEM, EMPTY, EXCEPT, GROUP,
+    INTERLEAVE, LIST, LITERAL, MAYBE, MIXED, NAME, NOT_ALLOWED, NS, PARAM,
+    PARENT, REF, ROOT, SEQ, SOME, TEXT,
+)
 
 QUANTS = {SOME: 'oneOrMore', MAYBE: 'optional', ANY: 'zeroOrMore'}
 TYPELIB_NS = 'http://www.w3.org/2001/XMLSchema-datatypes'
