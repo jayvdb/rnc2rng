@@ -69,8 +69,9 @@ class XMLSerializer(object):
         return '\n'.join(prelude + self.buf)
 
     def anno_attrs(self, nodes):
+        pairs = [('name', cgi.escape(n.name)) for n in nodes if isinstance(n, parser.Node) and n.type == NAME]
         select = lambda n: isinstance(n, parser.Node) and n.type == ANNO_ATTR
-        pairs = [(n.name, cgi.escape(n.value[0])) for n in nodes if select(n)]
+        pairs += [(n.name, cgi.escape(n.value[0])) for n in nodes if select(n)]
         if not pairs:
             return ''
         return ' ' + ' '.join('%s="%s"' % attr for attr in pairs)
@@ -82,10 +83,15 @@ class XMLSerializer(object):
 
             if not isinstance(x, parser.Node):
                 raise TypeError("Not a Node: " + repr(x))
-            elif x.type in set([ANNO_ATTR, DATATYPES, DEFAULT_NS, NS]):
+            elif x.type in set([ANNO_ATTR, DATATYPES, DEFAULT_NS, NAME, NS]):
                 continue
 
-            attribs = self.anno_attrs(x.value)
+            attribs = []
+            if x.name:
+                attribs += x.name
+            if x.value:
+                attribs += x.value
+            attribs = self.anno_attrs(attribs)
             if x.type == DEFINE:
 
                 op, attrib = x.value[0].name, ''
